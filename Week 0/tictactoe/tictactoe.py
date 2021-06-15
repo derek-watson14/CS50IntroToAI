@@ -61,7 +61,18 @@ def result(board, action):
     """
     Returns the board that results from making move (i, j) on the board.
     """
-    raise NotImplementedError
+    # Deep copy board
+    board_copy = [[board[0][0], board[0][1], board[0][2]],
+                  [board[1][0], board[1][1], board[1][2]],
+                  [board[2][0], board[2][1], board[2][2]]]
+
+    # Make move if cell is open, else raise exception
+    if board_copy[action[0]][action[1]] is None:
+        board_copy[action[0]][action[1]] = player(board)
+    else:
+        raise IndexError("Board cell is already taken.")
+
+    return(board_copy)
 
 
 def winner(board):
