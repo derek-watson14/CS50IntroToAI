@@ -93,7 +93,7 @@ def shortest_path(source, target):
     If no possible path, returns None.
     """
 
-    # Initialize frontier to starting position
+    # Initialize frontier to starting position and use BFS
     start = Node(state=source, parent=None, action=None)
     frontier = QueueFrontier()
     frontier.add(start)
@@ -106,7 +106,7 @@ def shortest_path(source, target):
 
         # If nothing left in frontier, then there is no path
         if frontier.empty():
-            raise Exception("no solution")
+            return None
 
         # Take a node from the frontier
         node = frontier.remove()
