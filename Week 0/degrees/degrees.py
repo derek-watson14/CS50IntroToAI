@@ -1,4 +1,5 @@
 import csv
+from os import closerange
 import sys
 
 from util import Node, StackFrontier, QueueFrontier
@@ -92,8 +93,44 @@ def shortest_path(source, target):
     If no possible path, returns None.
     """
 
-    # TODO
-    raise NotImplementedError
+    # Initialize frontier to starting position
+    start = Node(state=source, parent=None, action=None)
+    frontier = QueueFrontier()
+    frontier.add(start)
+
+    # Initialize empty explored set
+    explored = set()
+
+    # Keep looping until solution found
+    while True:
+
+        # If nothing left in frontier, then there is no path
+        if frontier.empty():
+            raise Exception("no solution")
+
+        # Take a node from the frontier
+        node = frontier.remove()
+
+        # Mark node as explored
+        explored.add(node.state)
+
+        # Add neighbors to frontier
+        for action, state in neighbors_for_person(node.state):
+            if not frontier.contains_state(state) and state not in explored:
+                child = Node(state=state, parent=node, action=action)
+                # If node is the goal, then it is a solution
+                if child.state == target:
+                    return buildPath(child)
+                frontier.add(child)
+
+
+def buildPath(node):
+    path = []
+    while node.parent is not None:
+        path.append((node.action, node.state))
+        node = node.parent
+    path.reverse()
+    return path
 
 
 def person_id_for_name(name):
