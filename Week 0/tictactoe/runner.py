@@ -2,14 +2,16 @@ import pygame
 import sys
 import time
 
+from pygame.mouse import set_system_cursor
+
 import tictactoe as ttt
 
 pygame.init()
 size = width, height = 600, 400
 
 # Colors
-black = (0, 0, 0)
-white = (255, 255, 255)
+black = (241, 239, 233)
+white = (110, 14, 16)
 
 screen = pygame.display.set_mode(size)
 
@@ -28,6 +30,8 @@ while True:
             sys.exit()
 
     screen.fill(black)
+    mouse = pygame.mouse
+    mouse_pos = mouse.get_pos()
 
     # Let user choose a player.
     if user is None:
@@ -53,19 +57,27 @@ while True:
         pygame.draw.rect(screen, white, playOButton)
         screen.blit(playO, playORect)
 
-        # Check if button is clicked
-        click, _, _ = pygame.mouse.get_pressed()
+        # Check if mouse hovers buttons
+        button_hover = playXButton.collidepoint(
+            mouse_pos) or playOButton.collidepoint(mouse_pos)
+        if button_hover:
+            mouse.set_cursor(pygame.SYSTEM_CURSOR_HAND)
+        else:
+            mouse.set_cursor(pygame.SYSTEM_CURSOR_ARROW)
+
+            # Check if button is clicked
+        click, _, _ = mouse.get_pressed()
         if click == 1:
-            mouse = pygame.mouse.get_pos()
-            if playXButton.collidepoint(mouse):
+            if playXButton.collidepoint(mouse_pos):
                 time.sleep(0.2)
+                mouse.set_cursor(pygame.SYSTEM_CURSOR_ARROW)
                 user = ttt.X
-            elif playOButton.collidepoint(mouse):
+            elif playOButton.collidepoint(mouse_pos):
                 time.sleep(0.2)
+                mouse.set_cursor(pygame.SYSTEM_CURSOR_ARROW)
                 user = ttt.O
 
     else:
-
         # Draw game board
         tile_size = 80
         tile_origin = (width / 2 - (1.5 * tile_size),
@@ -134,6 +146,10 @@ while True:
             againRect.center = againButton.center
             pygame.draw.rect(screen, white, againButton)
             screen.blit(again, againRect)
+            if againButton.collidepoint(mouse_pos):
+                mouse.set_cursor(pygame.SYSTEM_CURSOR_HAND)
+            else:
+                mouse.set_cursor(pygame.SYSTEM_CURSOR_ARROW)
             click, _, _ = pygame.mouse.get_pressed()
             if click == 1:
                 mouse = pygame.mouse.get_pos()
