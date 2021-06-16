@@ -70,7 +70,7 @@ def result(board, action):
     if board_copy[action[0]][action[1]] is None:
         board_copy[action[0]][action[1]] = player(board)
     else:
-        raise IndexError("Board cell is already taken.")
+        raise IndexError("This space is already taken.")
 
     return(board_copy)
 
@@ -79,7 +79,28 @@ def winner(board):
     """
     Returns the winner of the game, if there is one.
     """
-    raise NotImplementedError
+    # horizontal
+    if board[0][0] != None and board[0][0] == board[0][1] == board[0][2]:
+        return board[0][0]
+    elif board[1][0] != None and board[1][0] == board[1][1] == board[1][2]:
+        return board[1][0]
+    elif board[2][0] != None and board[2][0] == board[2][1] == board[2][2]:
+        return board[2][0]
+    # vertical
+    elif board[0][0] != None and board[0][0] == board[1][0] == board[2][0]:
+        return board[0][0]
+    elif board[0][1] != None and board[0][1] == board[1][1] == board[2][1]:
+        return board[0][1]
+    elif board[0][2] != None and board[0][2] == board[1][2] == board[2][2]:
+        return board[0][2]
+    # diagonal
+    elif board[0][0] != None and board[0][0] == board[1][1] == board[2][2]:
+        return board[0][0]
+    elif board[0][2] != None and board[0][2] == board[1][1] == board[2][0]:
+        return board[0][2]
+    # no winner
+    else:
+        return None
 
 
 def terminal(board):
