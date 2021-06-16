@@ -107,18 +107,82 @@ def terminal(board):
     """
     Returns True if game is over, False otherwise.
     """
-    raise NotImplementedError
+    # If someone won, board is terminal
+    if winner(board) is not None:
+        return True
+
+    # If there are no more open cells, board is terminal
+    full_board = True
+    for line in board:
+        for cell in line:
+            if cell == EMPTY:
+                full_board = False
+                break
+
+    return full_board
 
 
 def utility(board):
     """
     Returns 1 if X has won the game, -1 if O has won, 0 otherwise.
     """
-    raise NotImplementedError
+    # Determine winner, or lack thereof
+    winning_player = winner(board)
+    if winning_player == X:
+        return 1
+    elif winning_player == O:
+        return -1
+    elif winning_player == None:
+        return 0
 
 
 def minimax(board):
     """
     Returns the optimal action for the current player on the board.
     """
-    raise NotImplementedError
+    print(">------------------------------------<")
+    action_list = []
+    utility_list = []
+    if player(board) == X:
+        actions_list = actions(board)
+        if len(actions_list) == 9:
+            for a in actions_list:
+                break
+            return a
+        for action in actions_list:
+            res = result(board, action)
+            util = min_value(res)
+            print(res, util)
+            if util == 1:
+                return action
+            action_list.append(action)
+            utility_list.append(util)
+        return action_list[utility_list.index(max(utility_list))]
+    else:
+        for action in actions(board):
+            res = result(board, action)
+            util = max_value(res)
+            print(res, util)
+            if util == -1:
+                return action
+            action_list.append(action)
+            utility_list.append(util)
+        return action_list[utility_list.index(min(utility_list))]
+
+
+def max_value(board):
+    v = float('-inf')
+    if terminal(board):
+        return utility(board)
+    for action in actions(board):
+        v = max(v, min_value(result(board, action)))
+    return v
+
+
+def min_value(board):
+    v = float('inf')
+    if terminal(board):
+        return utility(board)
+    for action in actions(board):
+        v = min(v, max_value(result(board, action)))
+    return v
