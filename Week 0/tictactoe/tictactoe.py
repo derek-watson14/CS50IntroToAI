@@ -128,6 +128,7 @@ def utility(board):
     """
     # Determine winner, or lack thereof
     winning_player = winner(board)
+    # Assign a utility score to the result
     if winning_player == X:
         return 1
     elif winning_player == O:
@@ -140,40 +141,64 @@ def minimax(board):
     """
     Returns the optimal action for the current player on the board.
     """
-    print(">------------------------------------<")
+    print("\n>------------------------------------------------<")
+    print("Evaluating possible moves...")
+    # Prepare to store possible actions and utility of each
     action_list = []
     utility_list = []
+
+    # If current player is the MAX player
     if player(board) == X:
+        # Get all possible actions
         actions_list = actions(board)
+
+        # If this is the first move overall, all squares have equal utility
         if len(actions_list) == 9:
-            for a in actions_list:
-                break
-            return a
+            print("(0, 0) All first moves have same utility")
+            return (0, 0)
+
+        # Loop through actions, calculate minimum (worst-case) utility
         for action in actions_list:
-            res = result(board, action)
-            util = min_value(res)
-            print(res, util)
+            util = min_value(result(board, action))
+            print(action, util_to_eng(util))
+            # If move will win game, stop checking other actions
             if util == 1:
                 return action
+            # Add action and utility to record
             action_list.append(action)
             utility_list.append(util)
+
+        # Return the best possible option for player X based on utility
         return action_list[utility_list.index(max(utility_list))]
+
+    # If current player is the MIN player
     else:
-        for action in actions(board):
-            res = result(board, action)
-            util = max_value(res)
-            print(res, util)
+        actions_list = actions(board)
+
+        for action in actions_list:
+            util = max_value(result(board, action))
+            print(action, util_to_eng(util))
             if util == -1:
                 return action
             action_list.append(action)
             utility_list.append(util)
+
         return action_list[utility_list.index(min(utility_list))]
 
 
 def max_value(board):
+    # Set value to -inf
     v = float('-inf')
+    # If board is in terminal state, return utility of board
     if terminal(board):
         return utility(board)
+    """
+    If board is not terminal, recursively check all possible courses the game
+    could take, returning the UTILITY of each terminal game state. Then on
+    the way back "up" compare these utility scores, always returning the 
+    largest for a set of ACTIONS. When it reaches the "top", the MAX value that
+    can be attained in the game for the given BOARD is returned
+    """
     for action in actions(board):
         v = max(v, min_value(result(board, action)))
     return v
@@ -186,3 +211,12 @@ def min_value(board):
     for action in actions(board):
         v = min(v, max_value(result(board, action)))
     return v
+
+
+def util_to_eng(util):
+    if util == 1:
+        return "If X plays optimally, X wins"
+    if util == 0:
+        return "If both play optimally, tie"
+    if util == -1:
+        return "If O plays optimally, O wins"
