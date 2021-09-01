@@ -83,7 +83,7 @@ def load_data(filename):
                     row_list.append(1 if val == "TRUE" else 0)
                     evidence.append(row_list)
                 elif idx == 17:
-                    labels.append(val)
+                    labels.append(1 if val == "TRUE" else 0)
 
         return (evidence, labels)
 
@@ -113,7 +113,25 @@ def evaluate(labels, predictions):
     representing the "true negative rate": the proportion of
     actual negative labels that were accurately identified.
     """
-    raise NotImplementedError
+    positive_total = 0
+    positive_correct = 0
+    negative_total = 0
+    negative_correct = 0
+
+    for idx, label in enumerate(labels):
+        if label == 1:
+            positive_total += 1
+            if predictions[idx] == 1:
+                positive_correct += 1
+        if label == 0:
+            negative_total += 1
+            if predictions[idx] == 0:
+                negative_correct += 1
+
+    sensitivity = positive_correct / positive_total
+    specificity = negative_correct / negative_total
+
+    return (sensitivity, specificity)
 
 
 if __name__ == "__main__":
