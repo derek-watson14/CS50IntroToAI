@@ -123,7 +123,7 @@ class NimAI():
         is the sum of the current reward and estimated future rewards.
         """
         key = (tuple(state), action)
-        return old_q + self.alpha * ((reward + future_rewards) - self.q[key])
+        self.q[key] = old_q + self.alpha * ((reward + future_rewards) - old_q)
 
     def best_future_reward(self, state):
         """
@@ -135,7 +135,15 @@ class NimAI():
         Q-value in `self.q`. If there are no available actions in
         `state`, return 0.
         """
-        raise NotImplementedError
+        game = Nim()
+        actions = game.available_actions(state)
+        best = 0
+        for action in actions:
+            key = (tuple(state), action)
+            if key in self.q:
+                best = self.q[key] if self.q[key] > best else best
+
+        return best
 
     def choose_action(self, state, epsilon=True):
         """
@@ -152,7 +160,33 @@ class NimAI():
         If multiple actions have the same Q-value, any of those
         options is an acceptable return value.
         """
-        raise NotImplementedError
+        game = Nim()
+        actions = game.available_actions(state)
+        if not epsilon:
+            return self.best_action(state, actions)
+        else:
+            r = random.randrange(0, 101, 1) / 100
+            if r <= self.epsilon:
+                rand_action_idx = random.randrange(0, len(actions), 1)
+                return list(actions)[rand_action_idx]
+            else:
+                return self.best_action(state, actions)
+
+    def best_action(self, state, actions):
+        best_score = -math.inf
+        best_action = None
+        for action in actions:
+            key = (tuple(state), action)
+            if key in self.q:
+                if self.q[key] > best_score:
+                    best_score = self.q[key]
+                    best_action = action
+            else:
+                if 0 > best_score:
+                    best_score = 0
+                    best_action = action
+
+        return best_action
 
 
 def train(n):
