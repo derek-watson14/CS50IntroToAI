@@ -102,10 +102,7 @@ class NimAI():
         If no Q-value exists yet in `self.q`, return 0.
         """
         key = (tuple(state), action)
-        if key in self.q:
-            return self.q[key]
-        else:
-            return 0
+        return self.q[key] if key in self.q else 0
 
     def update_q_value(self, state, action, old_q, reward, future_rewards):
         """
@@ -135,15 +132,13 @@ class NimAI():
         Q-value in `self.q`. If there are no available actions in
         `state`, return 0.
         """
-        game = Nim()
-        actions = game.available_actions(state)
-        best = 0
-        for action in actions:
-            key = (tuple(state), action)
-            if key in self.q:
-                best = self.q[key] if self.q[key] > best else best
+        best_reward = 0
 
-        return best
+        actions = Nim.available_actions(state)
+        for action in actions:
+            best_reward = max(self.get_q_value(state, action), best_reward)
+
+        return best_reward
 
     def choose_action(self, state, epsilon=True):
         """
@@ -160,33 +155,25 @@ class NimAI():
         If multiple actions have the same Q-value, any of those
         options is an acceptable return value.
         """
-        game = Nim()
-        actions = game.available_actions(state)
-        if not epsilon:
-            return self.best_action(state, actions)
-        else:
-            r = random.randrange(0, 101, 1) / 100
-            if r <= self.epsilon:
-                rand_action_idx = random.randrange(0, len(actions), 1)
-                return list(actions)[rand_action_idx]
-            else:
-                return self.best_action(state, actions)
-
-    def best_action(self, state, actions):
-        best_score = -math.inf
         best_action = None
-        for action in actions:
-            key = (tuple(state), action)
-            if key in self.q:
-                if self.q[key] > best_score:
-                    best_score = self.q[key]
-                    best_action = action
-            else:
-                if 0 > best_score:
-                    best_score = 0
-                    best_action = action
+        best_reward = 0
+        actions = list(Nim.available_actions(state))
 
-        return best_action
+        # Get best action from all actions in this state
+        for action in actions:
+            reward = self.get_q_value(state, action)
+            if best_action is None or reward > best_reward:
+                best_reward = reward
+                best_action = action
+
+        # If using epsilon greedy, return weighted random choice from actions
+        if epsilon:
+            weights = [(1 - self.epsilon) if action == best_action else
+                       (self.epsilon / (len(actions) - 1)) for action in actions]
+            rand_action = random.choices(actions, weights=weights, k=1)[0]
+            return rand_action
+        else:
+            return best_action
 
 
 def train(n):
